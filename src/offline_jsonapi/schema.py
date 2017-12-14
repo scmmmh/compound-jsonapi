@@ -36,22 +36,26 @@ class Schema(ma.Schema):
         # Load the included data
         for part_source in data['included'] if 'included' in data else []:
             if part_source['type'] in self.include_schemas:
-                part_loaded, errors = super(Schema, self.include_schemas[part_source['type']])._do_load({'data': part_source}, many=None, partial=None, postprocess=True)
+                part_loaded, errors = super(Schema, self.include_schemas[part_source['type']]).\
+                    _do_load({'data': part_source}, many=None, partial=None, postprocess=True)
                 objs[(part_source['type'], part_source['id'])] = ({'data': part_source}, part_loaded)
         # Fix the relationships
         for part_source, part_loaded in objs.values():
             schema = self.include_schemas[part_source['data']['type']]
             for field_name, validator in schema.fields.items():
                 if isinstance(validator, Relationship):
-                    links = validator.deserialize(part_source['data']['relationships'][field_name]['data'])
-                    if isinstance(links, list):
-                        if isinstance(part_loaded, dict):
-                            part_loaded[field_name] = [objs[link][1] for link in links]
+                    links = validator.deserialize(part_source['data']['relationships'][field_name]['data']
+                                                  if 'relationships' in part_source['data'] and
+                                                  field_name in part_source['data']['relationships'] else None)
+                    if links:
+                        if isinstance(links, list):
+                            if isinstance(part_loaded, dict):
+                                part_loaded[field_name] = [objs[link][1] for link in links]
+                            else:
+                                setattr(part_loaded, field_name, [objs[link][1] for link in links])
                         else:
-                            setattr(part_loaded, field_name, [objs[link][1] for link in links])
-                    else:
-                        if isinstance(part_loaded, dict):
-                            part_loaded[field_name] = objs[link][1]
-                        else:
-                            setattr(part_loaded, field_name, objs[link][1])
+                            if isinstance(part_loaded, dict):
+                                part_loaded[field_name] = objs[links][1]
+                            else:
+                                setattr(part_loaded, field_name, objs[links][1])
         return ma.UnmarshalResult(loaded, errors)

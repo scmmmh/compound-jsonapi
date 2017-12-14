@@ -15,6 +15,12 @@ class PageSchema(Schema):
     id = fields.Int()
     title = fields.Str(required=True)
     text = fields.Str()
+    author = Relationship(type_='authors',
+                          schema='TagSchema',
+                          required=True)
+    comments = Relationship(type_='comments',
+                            schema='CommentSchema',
+                            required=True)
 
     class Meta():
         type_ = 'pages'
@@ -25,6 +31,12 @@ class CommentSchema(Schema):
     id = fields.Int()
     title = fields.Str(required=True)
     text = fields.Str()
+    author = Relationship(type_='authors',
+                          schema='TagSchema',
+                          required=True)
+    page = Relationship(type_='pages',
+                        schema='PageSchema',
+                        required=True)
 
     class Meta():
         type_ = 'comments'
@@ -34,9 +46,10 @@ class AuthorSchema(Schema):
 
     id = fields.Int()
     name = fields.Str(required=True)
-    interests = Relationship(type_='relationships',
+    interests = Relationship(type_='tags',
                              schema='TagSchema',
-                             many=True)
+                             many=True,
+                             allow_none=True)
 
     class Meta():
         type_ = 'authors'
@@ -87,3 +100,18 @@ def author_with_interests_jsonapi(author_jsonapi, tags_jsonapi):
     author_jsonapi['data']['relationships'] = {'interests': {'data': [{'type': part['type'], 'id': part['id']} for part in tags_jsonapi['data']]}}
     author_jsonapi['included'] = tags_jsonapi['data']
     yield author_jsonapi
+
+
+@pytest.yield_fixture
+def comment_schema():
+    yield CommentSchema
+
+
+@pytest.yield_fixture
+def comments_jsonapi(author_with_interests_jsonapi):
+    pass
+
+
+@pytest.yield_fixture
+def page_schema():
+    yield PageSchema
