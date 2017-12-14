@@ -20,6 +20,7 @@ class PageSchema(Schema):
                           required=True)
     comments = Relationship(type_='comments',
                             schema='CommentSchema',
+                            many=True,
                             required=True)
 
     class Meta():
@@ -108,10 +109,37 @@ def comment_schema():
 
 
 @pytest.yield_fixture
-def comments_jsonapi(author_with_interests_jsonapi):
-    pass
+def page_schema():
+    yield PageSchema
 
 
 @pytest.yield_fixture
-def page_schema():
-    yield PageSchema
+def full_jsonapi():
+    author = next(author_with_interests_jsonapi(next(author_jsonapi()), next(tags_jsonapi())))
+    page_jsonapi = {'data': {'type': 'pages',
+                             'id': str(fake.random_int()),
+                             'attributes': {'title': ' '.join(fake.words()),
+                                            'text': fake.text()},
+                             'relationships': {'author': {'data': {'type': author['data']['type'],
+                                                                   'id': author['data']['id']}},
+                                               'comments': {'data': []}}}}
+    included = [author['data']]
+    included.extend(author['included'])
+    def add_comment():
+        author = next(author_with_interests_jsonapi(next(author_jsonapi()), next(tags_jsonapi())))
+        comment = {'data': {'type': 'comments',
+                            'id': str(fake.random_int()),
+                            'attributes': {'title': ' '.join(fake.words()),
+                                           'text': fake.text()},
+                            'relationships': {'author': {'data': {'type': author['data']['type'],
+                                                                  'id': author['data']['id']}},
+                                              'page': {'data': {'type': page_jsonapi['data']['type'],
+                                                                'id': page_jsonapi['data']['id']}}}}}
+        included.append(author['data'])
+        included.extend(author['included'])
+        included.append(comment['data'])
+        page_jsonapi['data']['relationships']['comments']['data'].append({'type': comment['data']['type'],
+                                                                          'id': comment['data']['id']})
+    [add_comment() for _ in range(0, 3)]
+    page_jsonapi['included'] = included
+    return page_jsonapi
