@@ -12,8 +12,7 @@ class Schema(ma.Schema):
         self.include_schemas = dict([(s.Meta.type_, s()) for s in include_schemas]) if include_schemas else {}
         self.include_schemas[self.Meta.type_] = self
 
-    @pre_load()
-    def _unwrap(self, data):
+    def _unwrap_single(self, data):
         data = data['data']
         result = {'id': data['id']}
         if 'attributes' in data:
@@ -24,7 +23,15 @@ class Schema(ma.Schema):
                     result[key] = value['data']
         return result
 
+    @pre_load(pass_many=True)
+    def _unwrap(self, data, many):
+        if many:
+            return [self._unwrap_single({'data': part}) for part in data['data']]
+        else:
+            return self._unwrap_single(data)
+
     def _do_load(self, data, many=None, partial=None, postprocess=True):
+        many = self.many if many is None else bool(many)
         # Load the main data
         loaded, errors = super(Schema, self)._do_load(data, many=many, partial=partial, postprocess=postprocess)
         objs = {}
@@ -37,7 +44,7 @@ class Schema(ma.Schema):
         for part_source in data['included'] if 'included' in data else []:
             if part_source['type'] in self.include_schemas:
                 part_loaded, errors = super(Schema, self.include_schemas[part_source['type']]).\
-                    _do_load({'data': part_source}, many=None, partial=None, postprocess=True)
+                    _do_load({'data': part_source}, many=False, partial=None, postprocess=True)
                 objs[(part_source['type'], part_source['id'])] = ({'data': part_source}, part_loaded)
         # Fix the relationships
         for part_source, part_loaded in objs.values():
