@@ -1,6 +1,6 @@
 import marshmallow as ma
 
-from marshmallow import pre_load
+from marshmallow import pre_load, pre_dump, post_dump
 
 from .fields import Relationship
 
@@ -66,3 +66,34 @@ class Schema(ma.Schema):
                             else:
                                 setattr(part_loaded, field_name, objs[links][1])
         return ma.UnmarshalResult(loaded, errors)
+
+    @pre_dump(pass_many=True)
+    def _init_dump(self, data, many):
+        self.include_data = []
+
+    def _wrap_single(self, data):
+        result = {'data': {'type': self.Meta.type_,
+                           'id': str(data['id']),
+                           'attributes': {},
+                           'relationships': {}}}
+        for key, value in data.items():
+            if key != 'id':
+                if isinstance(self.fields[key], Relationship):
+                    result['data']['relationships'][key] = value
+                else:
+                    result['data']['attributes'][key] = value
+        if not result['data']['attributes']:
+            del result['data']['attributes']
+        if not result['data']['relationships']:
+            del result['data']['relationships']
+        return result
+
+    @post_dump(pass_many=True)
+    def _wrap(self, data, many):
+        if many:
+            result = {'data': [self._wrap_single(part)['data'] for part in data]}
+        else:
+            result = self._wrap_single(data)
+        if self.include_data:
+            result['included'] = self.include_data
+        return result

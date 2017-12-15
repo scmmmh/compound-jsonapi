@@ -78,6 +78,12 @@ def author_jsonapi():
 
 
 @pytest.yield_fixture
+def author_plain():
+    yield {'id': fake.random_int(),
+           'name': fake.name()}
+
+
+@pytest.yield_fixture
 def tag_schema():
     yield TagSchema
 
@@ -90,6 +96,12 @@ def tag_jsonapi():
 
 
 @pytest.yield_fixture
+def tag_plain():
+    yield {'id': fake.random_int(),
+           'tag': fake.word()}
+
+
+@pytest.yield_fixture
 def tags_jsonapi():
     yield {'data': [{'type': 'tags',
                      'id': str(fake.random_int()),
@@ -97,10 +109,21 @@ def tags_jsonapi():
 
 
 @pytest.yield_fixture
+def tags_plain():
+    yield [{'id': fake.random_int(), 'tag': fake.word()} for _ in range(0, 3)]
+
+
+@pytest.yield_fixture
 def author_with_interests_jsonapi(author_jsonapi, tags_jsonapi):
     author_jsonapi['data']['relationships'] = {'interests': {'data': [{'type': part['type'], 'id': part['id']} for part in tags_jsonapi['data']]}}
     author_jsonapi['included'] = tags_jsonapi['data']
     yield author_jsonapi
+
+
+@pytest.yield_fixture
+def author_with_interests_plain(author_plain, tags_plain):
+    author_plain['interests'] = tags_plain
+    yield author_plain
 
 
 @pytest.yield_fixture
