@@ -15,11 +15,7 @@ class Relationship(ma.fields.Field):
         try:
             return getattr(schema, name)
         except AttributeError:
-            try:
-                setattr(schema, name, getattr(self.root, name))
-            except AttributeError:
-                setattr(self.root, name, default)
-                setattr(schema, name, getattr(self.root, name))
+            setattr(schema, name, getattr(self.root, name))
         return getattr(schema, name)
 
     @property
