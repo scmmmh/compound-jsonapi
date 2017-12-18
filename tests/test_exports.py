@@ -45,8 +45,8 @@ def test_basic_export_no_attributes():
     assert 'relationships' not in data['data']
 
 
-def test_one_to_many_relationship(author_schema, author_with_interests_plain):
-    author, errors = author_schema().dump(author_with_interests_plain)
+def test_one_to_many_relationship(author_schema, tag_schema, author_with_interests_plain):
+    author, errors = author_schema(include_schemas=(tag_schema,)).dump(author_with_interests_plain)
     assert errors == {}
     assert 'data' in author
     assert 'type' in author['data']
@@ -72,11 +72,8 @@ def test_one_to_many_relationship(author_schema, author_with_interests_plain):
         assert 'tag' in included['attributes']
 
 
-def test_many_to_many_relationship(page_schema, full_plain):
-    print(full_plain['author'])
-    for c in full_plain['comments']:
-        print(c['author'])
-    page, errors = page_schema().dump(full_plain)
+def test_many_to_many_relationship(page_schema, comment_schema, author_schema, tag_schema, full_plain):
+    page, errors = page_schema(include_schemas=(comment_schema, author_schema, tag_schema)).dump(full_plain)
     assert errors == {}
     assert 'data' in page
     assert 'type' in page['data']
@@ -86,7 +83,19 @@ def test_many_to_many_relationship(page_schema, full_plain):
     assert 'attributes' in page['data']
     assert 'relationships' in page['data']
     assert 'included' in page
-    print('----------------')
-    for part in page['included']:
-        print(part)
     assert len(page['included']) == 19
+
+
+def test_export_explicit_relationships(page_schema, author_schema, tag_schema, full_plain):
+    page, errors = page_schema(include_schemas=(author_schema, tag_schema)).dump(full_plain)
+    assert errors == {}
+    assert 'data' in page
+    assert 'type' in page['data']
+    assert page['data']['type'] == 'pages'
+    assert 'id' in page['data']
+    assert page['data']['id'] == str(full_plain['id'])
+    assert 'relationships' in page['data']
+    assert len(page['data']['relationships']) == 1
+    assert 'author' in page['data']['relationships']
+    assert 'included' in page
+    assert len(page['included']) == 4

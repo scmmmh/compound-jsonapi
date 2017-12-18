@@ -10,7 +10,8 @@ class Schema(ma.Schema):
     def __init__(self, include_schemas=None, *args, **kwargs):
         super(Schema, self).__init__(*args, **kwargs)
         self.include_schemas = dict([(s.Meta.type_, s()) for s in include_schemas]) if include_schemas else {}
-        self.include_schemas[self.Meta.type_] = self
+        self.load_schemas = dict([(s.Meta.type_, s()) for s in include_schemas]) if include_schemas else {}
+        self.load_schemas[self.Meta.type_] = self
 
     def _unwrap_single(self, data):
         data = data['data']
@@ -42,13 +43,13 @@ class Schema(ma.Schema):
             objs[(data['data']['type'], data['data']['id'])] = (data, loaded)
         # Load the included data
         for part_source in data['included'] if 'included' in data else []:
-            if part_source['type'] in self.include_schemas:
-                part_loaded, errors = super(Schema, self.include_schemas[part_source['type']]).\
+            if part_source['type'] in self.load_schemas:
+                part_loaded, errors = super(Schema, self.load_schemas[part_source['type']]).\
                     _do_load({'data': part_source}, many=False, partial=None, postprocess=True)
                 objs[(part_source['type'], part_source['id'])] = ({'data': part_source}, part_loaded)
         # Fix the relationships
         for part_source, part_loaded in objs.values():
-            schema = self.include_schemas[part_source['data']['type']]
+            schema = self.load_schemas[part_source['data']['type']]
             for field_name, validator in schema.fields.items():
                 if isinstance(validator, Relationship):
                     links = validator.deserialize(part_source['data']['relationships'][field_name]['data']
@@ -85,7 +86,7 @@ class Schema(ma.Schema):
                            'attributes': {},
                            'relationships': {}}}
         for key, value in data.items():
-            if key != 'id':
+            if key != 'id' and value is not None:
                 if isinstance(self.fields[key], Relationship):
                     result['data']['relationships'][key] = value
                 else:

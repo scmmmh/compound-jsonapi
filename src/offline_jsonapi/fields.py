@@ -10,6 +10,7 @@ class Relationship(ma.fields.Field):
         self.many = many
         self.__schema = schema
         self.type_ = type_
+        self.follow = False
 
     def _schema_inherited_property(self, schema, name, default=None):
         try:
@@ -33,6 +34,7 @@ class Relationship(ma.fields.Field):
                 self.__schema = schema_class()
         self._schema_inherited_property(self.__schema, '_visited', [])
         self._schema_inherited_property(self.__schema, '_included_data', {})
+        self.__schema.include_schemas = self.root.include_schemas
         self.__schema._parent = self.root
         return self.__schema
 
@@ -43,20 +45,23 @@ class Relationship(ma.fields.Field):
             return (value['type'], value['id'])
 
     def _serialize(self, value, attr=None, data=None):
-        visited = getattr(self.schema, '_visited')
-        included_data = getattr(self.schema, '_included_data')
-        if self.many:
-            result = []
-            for part in value:
-                if (self.type_, str(part['id'])) not in visited:
-                    visited.append((self.type_, str(part['id'])))
-                    included, errors = self.schema.dump(part, many=False)
-                    included_data[(self.type_, str(part['id']))] = included['data']
-                result.append({'type': self.type_, 'id': str(part['id'])})
-            return result
+        if self.schema.Meta.type_ in self.schema.include_schemas:
+            visited = getattr(self.schema, '_visited')
+            included_data = getattr(self.schema, '_included_data')
+            if self.many:
+                result = []
+                for part in value:
+                    if (self.type_, str(part['id'])) not in visited:
+                        visited.append((self.type_, str(part['id'])))
+                        included, errors = self.schema.dump(part, many=False)
+                        included_data[(self.type_, str(part['id']))] = included['data']
+                    result.append({'type': self.type_, 'id': str(part['id'])})
+                return result
+            else:
+                if (self.type_, str(value['id'])) not in visited:
+                    visited.append((self.type_, str(value['id'])))
+                    included, errors = self.schema.dump(value, many=False)
+                    included_data[(self.type_, str(value['id']))] = included['data']
+                return {'type': self.type_, 'id': str(value['id'])}
         else:
-            if (self.type_, str(value['id'])) not in visited:
-                visited.append((self.type_, str(value['id'])))
-                included, errors = self.schema.dump(value, many=False)
-                included_data[(self.type_, str(value['id']))] = included['data']
-            return {'type': self.type_, 'id': str(value['id'])}
+            return None
