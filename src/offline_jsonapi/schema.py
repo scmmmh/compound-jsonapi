@@ -1,3 +1,10 @@
+"""
+:mod:`offline_jsonapi.schema.Schema`
+====================================
+
+The :class:`~offline_jsonapi.schema.Schema` defines the base-class for
+custom schemas to use for serialisation / deserialisation.
+"""
 import marshmallow as ma
 
 from marshmallow import pre_load, pre_dump, post_dump
@@ -6,8 +13,20 @@ from .fields import Relationship
 
 
 class Schema(ma.Schema):
+    """Extends the :class:`~marshmallow.Schema` with the functionality needed
+    for serialising to / deserialising from compound JSONAPI documents."""
 
     def __init__(self, include_schemas=None, *args, **kwargs):
+        """
+        When instantiating a :class:`~offline_jsonapi.schema.Schema`, by default
+        only the attributes of the current schema a serialised. If relationships
+        are to be followed, then the :class:`~offline_jsonapi.schema.Schema`\ s
+        that are to be included must be listed in ``include_schemas``.
+
+        :param include_schemas: The :class:`~offline_jsonapi.schema.Schema`\ s to
+                                include when serialising / deserialising
+        :type include_schemas: ``list`` of :class:`~offline_jsonapi.schema.Schema`
+        """
         super(Schema, self).__init__(*args, **kwargs)
         self.include_schemas = dict([(s.Meta.type_, s()) for s in include_schemas]) if include_schemas else {}
         self.load_schemas = dict([(s.Meta.type_, s()) for s in include_schemas]) if include_schemas else {}

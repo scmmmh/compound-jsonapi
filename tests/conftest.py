@@ -22,11 +22,9 @@ class PageSchema(Schema):
     id = fields.Int()
     title = fields.Str(required=True)
     text = fields.Str()
-    author = Relationship(type_='authors',
-                          schema='AuthorSchema',
+    author = Relationship(schema='AuthorSchema',
                           required=True)
-    comments = Relationship(type_='comments',
-                            schema='CommentSchema',
+    comments = Relationship(schema='CommentSchema',
                             many=True,
                             required=True)
 
@@ -39,11 +37,9 @@ class CommentSchema(Schema):
     id = fields.Int()
     title = fields.Str(required=True)
     text = fields.Str()
-    author = Relationship(type_='authors',
-                          schema='AuthorSchema',
+    author = Relationship(schema='AuthorSchema',
                           required=True)
-    page = Relationship(type_='pages',
-                        schema=PageSchema,
+    page = Relationship(schema=PageSchema,
                         required=True)
 
     @post_load()
@@ -58,8 +54,7 @@ class AuthorSchema(Schema):
 
     id = fields.Int()
     name = fields.Str(required=True)
-    interests = Relationship(type_='tags',
-                             schema='TagSchema',
+    interests = Relationship(schema='TagSchema',
                              many=True,
                              allow_none=True)
 

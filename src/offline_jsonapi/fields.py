@@ -4,12 +4,15 @@ _RECURSIVE_NESTED = 'self'
 
 
 class Relationship(ma.fields.Field):
+    """The :class:`~offline_jsonapi.fields.Relationship` creates a link between
+    two :class:`~offline_jsonapi.schema.Schema`.
+    """
 
-    def __init__(self, schema, type_, many=False, **kwargs):
+    def __init__(self, schema, many=False, **kwargs):
+        """"""
         super(Relationship, self).__init__(**kwargs)
         self.many = many
         self.__schema = schema
-        self.type_ = type_
         self.follow = False
 
     def _schema_inherited_property(self, schema, name, default=None):
@@ -51,17 +54,17 @@ class Relationship(ma.fields.Field):
             if self.many:
                 result = []
                 for part in value:
-                    if (self.type_, str(part['id'])) not in visited:
-                        visited.append((self.type_, str(part['id'])))
+                    if (self.schema.Meta.type_, str(part['id'])) not in visited:
+                        visited.append((self.schema.Meta.type_, str(part['id'])))
                         included, errors = self.schema.dump(part, many=False)
-                        included_data[(self.type_, str(part['id']))] = included['data']
-                    result.append({'type': self.type_, 'id': str(part['id'])})
+                        included_data[(self.schema.Meta.type_, str(part['id']))] = included['data']
+                    result.append({'type': self.schema.Meta.type_, 'id': str(part['id'])})
                 return result
             else:
-                if (self.type_, str(value['id'])) not in visited:
-                    visited.append((self.type_, str(value['id'])))
+                if (self.schema.Meta.type_, str(value['id'])) not in visited:
+                    visited.append((self.schema.Meta.type_, str(value['id'])))
                     included, errors = self.schema.dump(value, many=False)
-                    included_data[(self.type_, str(value['id']))] = included['data']
-                return {'type': self.type_, 'id': str(value['id'])}
+                    included_data[(self.schema.Meta.type_, str(value['id']))] = included['data']
+                return {'type': self.schema.Meta.type_, 'id': str(value['id'])}
         else:
             return None
