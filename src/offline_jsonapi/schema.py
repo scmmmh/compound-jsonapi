@@ -4,6 +4,8 @@
 
 The :class:`~offline_jsonapi.schema.Schema` defines the base-class for
 custom schemas to use for serialisation / deserialisation.
+
+.. moduleauthor:: Mark Hall <mark.hall@work.room3b.eu>
 """
 import marshmallow as ma
 

@@ -9,6 +9,8 @@ The :mod:`offline_jsonapi` provides two main classes:
   of its public interface can be found at :class:`~marshmallow.Schema`.
 * The :class:`~offline_jsonapi.fields.Relationship` is a custom field to define
   relationships between :class:`~offline_jsonapi.schema.Schema`.
+
+.. moduleauthor:: Mark Hall <mark.hall@work.room3b.eu>
 """
 from .schema import Schema  # noqa:
 from .fields import Relationship  # noqa:

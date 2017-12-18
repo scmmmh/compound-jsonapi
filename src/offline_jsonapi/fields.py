@@ -1,3 +1,12 @@
+"""
+:mod:`offline_jsonapi.fields`
+=============================
+
+Provides the :class:`~offline_jsonapi.fields.Relationship` custom field for
+defining relationships between :class:`~offline_jsonapi.schema.Schema`\ s.
+
+.. moduleauthor:: Mark Hall <mark.hall@work.room3b.eu>
+"""
 import marshmallow as ma
 
 _RECURSIVE_NESTED = 'self'
@@ -5,11 +14,19 @@ _RECURSIVE_NESTED = 'self'
 
 class Relationship(ma.fields.Field):
     """The :class:`~offline_jsonapi.fields.Relationship` creates a link between
-    two :class:`~offline_jsonapi.schema.Schema`.
+    two :class:`~offline_jsonapi.schema.Schema`. The linked
+    :class:`~offline_jsonapi.schema.Schema` can either be provided as a class
+    or a dotted classname string.
     """
 
     def __init__(self, schema, many=False, **kwargs):
-        """"""
+        """
+        :param schema: The :class:`~offline_jsonapi.schema.Schema` that defines
+                       how to handle the linked data.
+        :param many: By default the relationship is one-to-one. Set this to
+                     ``true`` to create a one-to-many relationship
+        :type many: ``bool``
+        """
         super(Relationship, self).__init__(**kwargs)
         self.many = many
         self.__schema = schema

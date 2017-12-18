@@ -3,3 +3,5 @@ syntax: glob
 .tox
 *.egg-info
 *.pyc
+_build
+.coverage
