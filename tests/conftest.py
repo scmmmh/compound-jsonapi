@@ -16,7 +16,7 @@ class PageSchema(Schema):
     title = fields.Str(required=True)
     text = fields.Str()
     author = Relationship(type_='authors',
-                          schema='TagSchema',
+                          schema='AuthorSchema',
                           required=True)
     comments = Relationship(type_='comments',
                             schema='CommentSchema',
@@ -33,7 +33,7 @@ class CommentSchema(Schema):
     title = fields.Str(required=True)
     text = fields.Str()
     author = Relationship(type_='authors',
-                          schema='TagSchema',
+                          schema='AuthorSchema',
                           required=True)
     page = Relationship(type_='pages',
                         schema='PageSchema',
@@ -166,3 +166,18 @@ def full_jsonapi():
     [add_comment() for _ in range(0, 3)]
     page_jsonapi['included'] = included
     return page_jsonapi
+
+
+@pytest.yield_fixture
+def full_plain():
+    page = {'id': fake.random_int(),
+            'title': ' '.join(fake.words()),
+            'text': fake.text(),
+            'author': next(author_with_interests_plain(next(author_plain()), next(tags_plain())))}
+    comments = [{'id': fake.random_int(),
+                 'title': ' '.join(fake.words()),
+                 'text': fake.text(),
+                 'author': next(author_with_interests_plain(next(author_plain()), next(tags_plain()))),
+                 'page': page} for _ in range(0, 3)]
+    page['comments'] = comments
+    yield page

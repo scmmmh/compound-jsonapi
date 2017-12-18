@@ -69,7 +69,15 @@ class Schema(ma.Schema):
 
     @pre_dump(pass_many=True)
     def _init_dump(self, data, many):
-        self.include_data = []
+        if not hasattr(self, '_visited'):
+            setattr(self, '_visited', [])
+        if not hasattr(self, '_included_data'):
+            setattr(self, '_included_data', {})
+        if not hasattr(self, '_parent'):
+            if many:
+                self._visited.extend([(self.Meta.type_, str(part['id'])) for part in data])
+            else:
+                self._visited.append((self.Meta.type_, str(data['id'])))
 
     def _wrap_single(self, data):
         result = {'data': {'type': self.Meta.type_,
@@ -94,6 +102,5 @@ class Schema(ma.Schema):
             result = {'data': [self._wrap_single(part)['data'] for part in data]}
         else:
             result = self._wrap_single(data)
-        if self.include_data:
-            result['included'] = self.include_data
+        result['included'] = list(getattr(self, '_included_data').values())
         return result

@@ -11,24 +11,37 @@ class Relationship(ma.fields.Field):
         self.__schema = schema
         self.type_ = type_
 
+    def _schema_inherited_property(self, schema, name, default=None):
+        try:
+            return getattr(schema, name)
+        except AttributeError:
+            try:
+                setattr(schema, name, getattr(self.root, name))
+            except AttributeError:
+                setattr(self.root, name, default)
+                setattr(schema, name, getattr(self.root, name))
+        return getattr(schema, name)
+
     @property
     def schema(self):
         if isinstance(self.__schema, ma.base.SchemaABC):
-            return self.__schema
-        if isinstance(self.__schema, type) and issubclass(self.__schema, ma.base.SchemaABC):
+            pass
+        elif isinstance(self.__schema, type) and issubclass(self.__schema, ma.base.SchemaABC):
             self.__schema = self.__schema()
-            return self.__schema
-        if isinstance(self.__schema, ma.compat.basestring):
+        elif isinstance(self.__schema, ma.compat.basestring):
             if self.__schema == _RECURSIVE_NESTED:
                 parent_class = self.parent.__class__
                 self.__schema = parent_class()
             else:
                 schema_class = ma.class_registry.get_class(self.__schema)
                 self.__schema = schema_class()
-            return self.__schema
         else:
             raise ValueError(('A Schema is required to serialize a nested '
                               'relationship with include_data'))
+        self._schema_inherited_property(self.__schema, '_visited', [])
+        self._schema_inherited_property(self.__schema, '_included_data', {})
+        self.__schema._parent = self.root
+        return self.__schema
 
     def _deserialize(self, value, attr=None, data=None):
         if value is None:
@@ -40,10 +53,20 @@ class Relationship(ma.fields.Field):
                 return (value['type'], value['id'])
 
     def _serialize(self, value, attr=None, data=None):
-        included, errors = self.schema.dump(value, many=self.many)
+        visited = getattr(self.schema, '_visited')
+        included_data = getattr(self.schema, '_included_data')
         if self.many:
-            self.root.include_data.extend(included['data'])
-            return [{'type': self.type_, 'id': str(part['id'])} for part in value]
+            result = []
+            for part in value:
+                if (self.type_, str(part['id'])) not in visited:
+                    visited.append((self.type_, str(part['id'])))
+                    included, errors = self.schema.dump(part, many=False)
+                    included_data[(self.type_, str(part['id']))] = included['data']
+                result.append({'type': self.type_, 'id': str(part['id'])})
+            return result
         else:
-            self.root.include_data.append(included['data'])
+            if (self.type_, str(value['id'])) not in visited:
+                visited.append((self.type_, str(value['id'])))
+                included, errors = self.schema.dump(value, many=False)
+                included_data[(self.type_, str(value['id']))] = included['data']
             return {'type': self.type_, 'id': str(value['id'])}

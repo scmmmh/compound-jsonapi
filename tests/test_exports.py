@@ -48,3 +48,23 @@ def test_one_to_many_relationship(author_schema, author_with_interests_plain):
         assert 'id' in included
         assert 'attributes' in included
         assert 'tag' in included['attributes']
+
+
+def test_many_to_many_relationship(page_schema, full_plain):
+    print(full_plain['author'])
+    for c in full_plain['comments']:
+        print(c['author'])
+    page, errors = page_schema().dump(full_plain)
+    assert errors == {}
+    assert 'data' in page
+    assert 'type' in page['data']
+    assert page['data']['type'] == 'pages'
+    assert 'id' in page['data']
+    assert page['data']['id'] == str(full_plain['id'])
+    assert 'attributes' in page['data']
+    assert 'relationships' in page['data']
+    assert 'included' in page
+    print('----------------')
+    for part in page['included']:
+        print(part)
+    assert len(page['included']) == 19
