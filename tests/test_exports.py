@@ -23,6 +23,28 @@ def test_basic_export_many(tag_schema, tags_plain):
         assert 'tag' in tag['attributes']
 
 
+def test_basic_export_no_attributes():
+    from marshmallow import fields
+    from offline_jsonapi import Schema
+
+    class NoAttributeSchema(Schema):
+        id = fields.Int()
+
+        class Meta():
+            type_ = 'no_attributes'
+
+    schema = NoAttributeSchema()
+    data, errors = schema.dump({'id': 1})
+    assert errors == {}
+    assert 'data' in data
+    assert 'type' in data['data']
+    assert data['data']['type'] == 'no_attributes'
+    assert 'id' in data['data']
+    assert data['data']['id'] == '1'
+    assert 'attributes' not in data['data']
+    assert 'relationships' not in data['data']
+
+
 def test_one_to_many_relationship(author_schema, author_with_interests_plain):
     author, errors = author_schema().dump(author_with_interests_plain)
     assert errors == {}
