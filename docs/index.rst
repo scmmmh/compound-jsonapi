@@ -9,6 +9,12 @@ serialised data, rather than using JSONAPI's link functionality. It has one
 main advantage over `Marshmallow JSONAPI`_ in that it can load and dump full
 circular graph structures.
 
+Sourcecode can be found here:
+  https://bitbucket.org/mhall/offline-jsonapi/
+Documentation can be found here:
+  http://offline-jsonapi.readthedocs.io/
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
