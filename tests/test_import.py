@@ -50,6 +50,14 @@ def test_load_none_relationship(author_schema, tag_schema, author_jsonapi):
     assert not hasattr(author, 'interests')
 
 
+def test_ignore_other_data(author_schema, author_jsonapi):
+    author, errors = author_schema().load(author_jsonapi)
+    assert errors == {}
+    assert author.id == int(author_jsonapi['data']['id'])
+    assert author.name == author_jsonapi['data']['attributes']['name']
+    assert not hasattr(author, 'interests')
+
+
 def test_circular_relationship(page_schema, comment_schema, author_schema, tag_schema, full_jsonapi):
     page, errors = page_schema(include_schemas=(comment_schema, author_schema, tag_schema)).\
         load(full_jsonapi)
