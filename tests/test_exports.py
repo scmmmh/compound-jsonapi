@@ -1,4 +1,5 @@
 def test_basic_export(author_schema, author_plain):
+    """Test basic dumping of a single object."""
     author, errors = author_schema().dump(author_plain)
     assert errors == {}
     assert 'data' in author
@@ -11,6 +12,7 @@ def test_basic_export(author_schema, author_plain):
     assert author['data']['attributes']['name'] == author_plain['name']
 
 def test_basic_export_many(tag_schema, tags_plain):
+    """Test basic dumping of many objects with the same schema."""
     tags, errors = tag_schema(many=True).dump(tags_plain)
     assert errors == {}
     assert 'data' in tags
@@ -23,7 +25,8 @@ def test_basic_export_many(tag_schema, tags_plain):
         assert 'tag' in tag['attributes']
 
 
-def test_basic_export_no_attributes():
+def test_export_no_attributes():
+    """Test dumping of a schema without attributes."""
     from marshmallow import fields
     from offline_jsonapi import Schema
 
@@ -46,6 +49,7 @@ def test_basic_export_no_attributes():
 
 
 def test_one_to_many_relationship(author_schema, tag_schema, author_with_interests_plain):
+    """Test dumping a single level one-to-many relationship."""
     author, errors = author_schema(include_schemas=(tag_schema,)).dump(author_with_interests_plain)
     assert errors == {}
     assert 'data' in author
@@ -73,6 +77,7 @@ def test_one_to_many_relationship(author_schema, tag_schema, author_with_interes
 
 
 def test_many_to_many_relationship(page_schema, comment_schema, author_schema, tag_schema, full_plain):
+    """Test dumping a many to many relationship."""
     page, errors = page_schema(include_schemas=(comment_schema, author_schema, tag_schema)).dump(full_plain)
     assert errors == {}
     assert 'data' in page
@@ -87,6 +92,7 @@ def test_many_to_many_relationship(page_schema, comment_schema, author_schema, t
 
 
 def test_export_explicit_relationships(page_schema, author_schema, tag_schema, full_plain):
+    """Test exporting only a sub-set of relationships."""
     page, errors = page_schema(include_schemas=(author_schema, tag_schema)).dump(full_plain)
     assert errors == {}
     assert 'data' in page

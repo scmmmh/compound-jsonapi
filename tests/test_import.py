@@ -1,5 +1,5 @@
 def test_load_basic_schema(author_schema, author_jsonapi):
-    '''Tests that loading a basic schema with no relationships works'''
+    """Tests that loading a basic schema with no relationships works"""
     author, errors = author_schema().load(author_jsonapi)
     assert errors == {}
     assert author.id == int(author_jsonapi['data']['id'])
@@ -7,13 +7,14 @@ def test_load_basic_schema(author_schema, author_jsonapi):
 
 
 def test_load_basic_missing_field(author_schema, author_jsonapi):
-    '''Tests that loading missing data leads to an error'''
+    """Tests that loading missing data leads to an error"""
     del author_jsonapi['data']['attributes']['name']
     author, errors = author_schema().load(author_jsonapi)
     assert errors == {'name': ['Missing data for required field.']}
 
 
 def test_load_multiple(tag_schema, tags_jsonapi):
+    """Tests that loading multiple objects in one go works."""
     tags, errors = tag_schema().load(tags_jsonapi, many=True)
     assert errors == {}
     assert len(tags) == 3
@@ -22,6 +23,7 @@ def test_load_multiple(tag_schema, tags_jsonapi):
 
 
 def test_load_multiple_set_on_schema(tag_schema, tags_jsonapi):
+    """Tests that loading multiple objects in one go works when configured on the schema."""
     tags, errors = tag_schema(many=True).load(tags_jsonapi)
     assert errors == {}
     assert len(tags) == 3
@@ -42,6 +44,7 @@ def test_load_single_parent_child_relationship(author_schema, tag_schema, author
 
 
 def test_load_none_relationship(author_schema, tag_schema, author_jsonapi):
+    """Tests that loading a relationship that is set to None does not load anything."""
     author_jsonapi['interests'] = None
     author, errors = author_schema(include_schemas=(tag_schema,)).load(author_jsonapi)
     assert errors == {}
@@ -51,6 +54,7 @@ def test_load_none_relationship(author_schema, tag_schema, author_jsonapi):
 
 
 def test_ignore_other_data(author_schema, author_jsonapi):
+    """Tests that loading data ignores any additional relationships not specified."""
     author, errors = author_schema().load(author_jsonapi)
     assert errors == {}
     assert author.id == int(author_jsonapi['data']['id'])
@@ -59,6 +63,7 @@ def test_ignore_other_data(author_schema, author_jsonapi):
 
 
 def test_circular_relationship(page_schema, comment_schema, author_schema, tag_schema, full_jsonapi):
+    """Tests that loading a circular graph structure works."""
     page, errors = page_schema(include_schemas=(comment_schema, author_schema, tag_schema)).\
         load(full_jsonapi)
     assert errors == {}
