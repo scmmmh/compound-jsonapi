@@ -31,9 +31,6 @@ class Relationship(ma.fields.Field):
             else:
                 schema_class = ma.class_registry.get_class(self.__schema)
                 self.__schema = schema_class()
-        else:
-            raise ValueError(('A Schema is required to serialize a nested '
-                              'relationship with include_data'))
         self._schema_inherited_property(self.__schema, '_visited', [])
         self._schema_inherited_property(self.__schema, '_included_data', {})
         self.__schema._parent = self.root

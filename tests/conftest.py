@@ -1,13 +1,20 @@
 import faker
 import pytest
 
-from marshmallow import fields
+from marshmallow import fields, post_load
 
 from offline_jsonapi import Schema, Relationship
 
 from faker import Factory
 
 fake = Factory.create()
+
+
+class Obj(object):
+
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
 
 class PageSchema(Schema):
@@ -36,8 +43,12 @@ class CommentSchema(Schema):
                           schema='AuthorSchema',
                           required=True)
     page = Relationship(type_='pages',
-                        schema='PageSchema',
+                        schema=PageSchema,
                         required=True)
+
+    @post_load()
+    def build_comment(self, data):
+        return Obj(**data)
 
     class Meta():
         type_ = 'comments'
@@ -52,6 +63,10 @@ class AuthorSchema(Schema):
                              many=True,
                              allow_none=True)
 
+    @post_load()
+    def build_author(self, data):
+        return Obj(**data)
+
     class Meta():
         type_ = 'authors'
 
@@ -60,6 +75,10 @@ class TagSchema(Schema):
 
     id = fields.Int()
     tag = fields.Str(required=True)
+
+    @post_load()
+    def build_tag(self, data):
+        return Obj(**data)
 
     class Meta():
         type_ = 'tags'
