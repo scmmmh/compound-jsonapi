@@ -37,13 +37,10 @@ class Relationship(ma.fields.Field):
         return self.__schema
 
     def _deserialize(self, value, attr=None, data=None):
-        if value is None:
-            return None
+        if self.many:
+            return [(v['type'], v['id']) for v in value]
         else:
-            if self.many:
-                return [(v['type'], v['id']) for v in value]
-            else:
-                return (value['type'], value['id'])
+            return (value['type'], value['id'])
 
     def _serialize(self, value, attr=None, data=None):
         visited = getattr(self.schema, '_visited')
