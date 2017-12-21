@@ -96,7 +96,6 @@ class Schema(ma.Schema):
     @pre_dump(pass_many=True)
     def _init_dump(self, data, many):
         """Initialise the state variables for serialising data."""
-        print(data)
         if not hasattr(self, '_visited'):
             setattr(self, '_visited', [])
         if not hasattr(self, '_included_data'):
