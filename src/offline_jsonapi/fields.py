@@ -30,7 +30,6 @@ class Relationship(ma.fields.Field):
         super(Relationship, self).__init__(**kwargs)
         self.many = many
         self.__schema = schema
-        self.follow = False
 
     @property
     def schema(self):
