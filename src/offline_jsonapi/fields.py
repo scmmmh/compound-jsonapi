@@ -32,13 +32,6 @@ class Relationship(ma.fields.Field):
         self.__schema = schema
         self.follow = False
 
-    def _schema_inherited_property(self, schema, name, default=None):
-        try:
-            return getattr(schema, name)
-        except AttributeError:
-            setattr(schema, name, getattr(self.root, name))
-        return getattr(schema, name)
-
     @property
     def schema(self):
         if isinstance(self.__schema, ma.base.SchemaABC):
@@ -52,8 +45,8 @@ class Relationship(ma.fields.Field):
             else:
                 schema_class = ma.class_registry.get_class(self.__schema)
                 self.__schema = schema_class()
-        self._schema_inherited_property(self.__schema, '_visited', [])
-        self._schema_inherited_property(self.__schema, '_included_data', {})
+        self.__schema._visited = self.root._visited
+        self.__schema._included_data = self.root._included_data
         self.__schema.include_schemas = self.root.include_schemas
         self.__schema._parent = self.root
         return self.__schema
