@@ -34,6 +34,8 @@ class Relationship(ma.fields.Field):
 
     @property
     def schema(self):
+        """Property that returns an instantiated :class:`~offline_jsonapi.schema.Schema`
+        for the relationship."""
         if isinstance(self.__schema, ma.base.SchemaABC):
             pass
         elif isinstance(self.__schema, type) and issubclass(self.__schema, ma.base.SchemaABC):
@@ -52,12 +54,22 @@ class Relationship(ma.fields.Field):
         return self.__schema
 
     def _deserialize(self, value, attr=None, data=None):
+        """Deserialise the given ``value``. Returns a tuple ``(type, id)``
+        if the relationship is one-to-one otherwise retursn a ``list`` of
+        such tuples."""
         if self.many:
             return [(v['type'], v['id']) for v in value]
         else:
             return (value['type'], value['id'])
 
     def _serialize(self, value, attr=None, data=None):
+        """Serialises the given ``value``. Will only serialise if the relationship's
+        :class:`~offline_jsonapi.schema.Schema` is included in the list of
+        :class:`~offline_jsonapi.schema.Schema`\ s that have been set in the
+        ``include_schemas`` parameter when creating the root
+        :class:`~offline_jsonapi.schema.Schema`. Uses the ``_visited`` property
+        of the :func:`~offline_jsonapi.schema.Schema.schema` to correctly handle
+        circular relationship structures."""
         if self.schema.Meta.type_ in self.schema.include_schemas:
             visited = getattr(self.schema, '_visited')
             included_data = getattr(self.schema, '_included_data')

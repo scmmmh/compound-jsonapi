@@ -35,6 +35,8 @@ class Schema(ma.Schema):
         self.load_schemas[self.Meta.type_] = self
 
     def _unwrap_single(self, data):
+        """Unwrap a single JSONAPI object. Merges the id, and all attributes
+        and relationship values into a single ``dict``."""
         data = data['data']
         result = {'id': data['id']}
         if 'attributes' in data:
@@ -47,12 +49,15 @@ class Schema(ma.Schema):
 
     @pre_load(pass_many=True)
     def _unwrap(self, data, many):
+        """Unwrap all the objects that are to be deserialised."""
         if many:
             return [self._unwrap_single({'data': part}) for part in data['data']]
         else:
             return self._unwrap_single(data)
 
     def _do_load(self, data, many=None, partial=None, postprocess=True):
+        """Override the :class:`~marshmallow.Schema`\ 's ``_do_load`` to correctly
+        handle the included data."""
         many = self.many if many is None else bool(many)
         # Load the main data
         loaded, errors = super(Schema, self)._do_load(data, many=many, partial=partial, postprocess=postprocess)
@@ -91,6 +96,7 @@ class Schema(ma.Schema):
 
     @pre_dump(pass_many=True)
     def _init_dump(self, data, many):
+        """Initialise the state variables for serialising data."""
         if not hasattr(self, '_visited'):
             setattr(self, '_visited', [])
         if not hasattr(self, '_included_data'):
@@ -102,6 +108,7 @@ class Schema(ma.Schema):
                 self._visited.append((self.Meta.type_, str(data['id'])))
 
     def _wrap_single(self, data):
+        """Wrap a single object in the necessary JSONAPI properties."""
         result = {'data': {'type': self.Meta.type_,
                            'id': str(data['id']),
                            'attributes': {},
@@ -120,6 +127,7 @@ class Schema(ma.Schema):
 
     @post_dump(pass_many=True)
     def _wrap(self, data, many):
+        """Wrap the response in the full JSONAPI structure."""
         if many:
             result = {'data': [self._wrap_single(part)['data'] for part in data]}
         else:
