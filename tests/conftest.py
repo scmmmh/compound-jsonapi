@@ -96,6 +96,10 @@ def author_plain():
     yield {'id': fake.random_int(),
            'name': fake.name()}
 
+@pytest.yield_fixture
+def author_obj(author_plain):
+    yield Obj(**author_plain)
+
 
 @pytest.yield_fixture
 def tag_schema():

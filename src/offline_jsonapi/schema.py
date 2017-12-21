@@ -81,31 +81,31 @@ class Schema(ma.Schema):
                     links = validator.deserialize(part_source['data']['relationships'][field_name]['data']
                                                   if 'relationships' in part_source['data'] and
                                                   field_name in part_source['data']['relationships'] else None)
-                    if links:
-                        if isinstance(links, list):
-                            if isinstance(part_loaded, dict):
-                                part_loaded[field_name] = [objs[link][1] for link in links]
-                            else:
-                                setattr(part_loaded, field_name, [objs[link][1] for link in links])
+                    if validator.many:
+                        if isinstance(part_loaded, dict):
+                            part_loaded[field_name] = [objs[link][1] for link in links] if links else []
                         else:
-                            if isinstance(part_loaded, dict):
-                                part_loaded[field_name] = objs[links][1]
-                            else:
-                                setattr(part_loaded, field_name, objs[links][1])
+                            setattr(part_loaded, field_name, [objs[link][1] for link in links]) if links else []
+                    else:
+                        if isinstance(part_loaded, dict):
+                            part_loaded[field_name] = objs[links][1] if links else {}
+                        else:
+                            setattr(part_loaded, field_name, objs[links][1]) if links else {}
         return ma.UnmarshalResult(loaded, errors)
 
     @pre_dump(pass_many=True)
     def _init_dump(self, data, many):
         """Initialise the state variables for serialising data."""
+        print(data)
         if not hasattr(self, '_visited'):
             setattr(self, '_visited', [])
         if not hasattr(self, '_included_data'):
             setattr(self, '_included_data', {})
         if not hasattr(self, '_parent'):
             if many:
-                self._visited.extend([(self.Meta.type_, str(part['id'])) for part in data])
+                self._visited.extend([(self.Meta.type_, str(self.get_attribute(part, 'id', None))) for part in data])
             else:
-                self._visited.append((self.Meta.type_, str(data['id'])))
+                self._visited.append((self.Meta.type_, str(self.get_attribute(data, 'id', None))))
 
     def _wrap_single(self, data):
         """Wrap a single object in the necessary JSONAPI properties."""
@@ -114,9 +114,9 @@ class Schema(ma.Schema):
                            'attributes': {},
                            'relationships': {}}}
         for key, value in data.items():
-            if key != 'id' and value is not None:
+            if key != 'id':
                 if isinstance(self.fields[key], Relationship):
-                    result['data']['relationships'][key] = value
+                    result['data']['relationships'][key] = {'data': value}
                 else:
                     result['data']['attributes'][key] = value
         if not result['data']['attributes']:

@@ -63,7 +63,8 @@ def test_one_to_many_relationship(author_schema, tag_schema, author_with_interes
     assert 'interests' not in author['data']['attributes']
     assert 'relationships' in author['data']
     assert 'interests' in author['data']['relationships']
-    for interest in author['data']['relationships']['interests']:
+    assert 'data' in author['data']['relationships']['interests']
+    for interest in author['data']['relationships']['interests']['data']:
         assert 'type' in interest
         assert 'id' in interest
         assert len(interest) == 2
@@ -87,6 +88,9 @@ def test_many_to_many_relationship(page_schema, comment_schema, author_schema, t
     assert page['data']['id'] == str(full_plain['id'])
     assert 'attributes' in page['data']
     assert 'relationships' in page['data']
+    assert 'comments' in page['data']['relationships']
+    assert 'data' in page['data']['relationships']['comments']
+    assert len(page['data']['relationships']['comments']['data']) == 3
     assert 'included' in page
     assert len(page['included']) == 19
 
@@ -101,7 +105,65 @@ def test_export_explicit_relationships(page_schema, author_schema, tag_schema, f
     assert 'id' in page['data']
     assert page['data']['id'] == str(full_plain['id'])
     assert 'relationships' in page['data']
-    assert len(page['data']['relationships']) == 1
+    assert len(page['data']['relationships']) == 2
     assert 'author' in page['data']['relationships']
+    assert 'data' in page['data']['relationships']['author']
+    assert 'type' in page['data']['relationships']['author']['data']
+    assert 'id' in page['data']['relationships']['author']['data']
+    assert 'comments' in page['data']['relationships']
+    assert 'data' in page['data']['relationships']['comments']
+    assert page['data']['relationships']['comments']['data'] == []
     assert 'included' in page
     assert len(page['included']) == 4
+
+
+def test_export_obj(author_schema, author_obj):
+    """Test basic dumping of a single object."""
+    author, errors = author_schema().dump(author_obj)
+    assert errors == {}
+    assert 'data' in author
+    assert 'type' in author['data']
+    assert author['data']['type'] == 'authors'
+    assert 'id' in author['data']
+    assert author['data']['id'] == str(author_obj.id)
+    assert 'attributes' in author['data']
+    assert 'name' in author['data']['attributes']
+    assert author['data']['attributes']['name'] == author_obj.name
+
+
+def test_export_obj_none_relationship(author_schema, tag_schema, author_obj):
+    """Test basic dumping of a single object with a None relationship."""
+    author_obj.interests = None
+    author, errors = author_schema(include_schemas=(tag_schema, )).dump(author_obj)
+    assert errors == {}
+    assert 'data' in author
+    assert 'type' in author['data']
+    assert author['data']['type'] == 'authors'
+    assert 'id' in author['data']
+    assert author['data']['id'] == str(author_obj.id)
+    assert 'attributes' in author['data']
+    assert 'name' in author['data']['attributes']
+    assert author['data']['attributes']['name'] == author_obj.name
+    assert 'relationships' in author['data']
+    assert 'interests' in author['data']['relationships']
+    assert 'data' in author['data']['relationships']['interests']
+    assert author['data']['relationships']['interests']['data'] == []
+
+
+def test_export_obj_empty_relationship(author_schema, tag_schema, author_obj):
+    """Test basic dumping of a single object with an empty list relationship."""
+    author_obj.interests = []
+    author, errors = author_schema(include_schemas=(tag_schema, )).dump(author_obj)
+    assert errors == {}
+    assert 'data' in author
+    assert 'type' in author['data']
+    assert author['data']['type'] == 'authors'
+    assert 'id' in author['data']
+    assert author['data']['id'] == str(author_obj.id)
+    assert 'attributes' in author['data']
+    assert 'name' in author['data']['attributes']
+    assert author['data']['attributes']['name'] == author_obj.name
+    assert 'relationships' in author['data']
+    assert 'interests' in author['data']['relationships']
+    assert 'data' in author['data']['relationships']['interests']
+    assert author['data']['relationships']['interests']['data'] == []

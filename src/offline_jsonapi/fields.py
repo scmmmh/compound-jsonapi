@@ -69,23 +69,29 @@ class Relationship(ma.fields.Field):
         :class:`~offline_jsonapi.schema.Schema`. Uses the ``_visited`` property
         of the :func:`~offline_jsonapi.schema.Schema.schema` to correctly handle
         circular relationship structures."""
-        if self.schema.Meta.type_ in self.schema.include_schemas:
+        if self.schema.Meta.type_ in self.schema.include_schemas and value is not None:
             visited = getattr(self.schema, '_visited')
             included_data = getattr(self.schema, '_included_data')
             if self.many:
                 result = []
                 for part in value:
-                    if (self.schema.Meta.type_, str(part['id'])) not in visited:
-                        visited.append((self.schema.Meta.type_, str(part['id'])))
+                    if (self.schema.Meta.type_, str(self.schema.get_attribute(part, 'id', None))) not in visited:
+                        visited.append((self.schema.Meta.type_, str(self.schema.get_attribute(part, 'id', None))))
                         included, errors = self.schema.dump(part, many=False)
-                        included_data[(self.schema.Meta.type_, str(part['id']))] = included['data']
-                    result.append({'type': self.schema.Meta.type_, 'id': str(part['id'])})
+                        included_data[(self.schema.Meta.type_,
+                                       str(self.schema.get_attribute(part, 'id', None)))] = included['data']
+                    result.append({'type': self.schema.Meta.type_,
+                                   'id': str(self.schema.get_attribute(part, 'id', None))})
                 return result
             else:
-                if (self.schema.Meta.type_, str(value['id'])) not in visited:
-                    visited.append((self.schema.Meta.type_, str(value['id'])))
+                if (self.schema.Meta.type_, str(self.schema.get_attribute(value, 'id', None))) not in visited:
+                    visited.append((self.schema.Meta.type_, str(self.schema.get_attribute(value, 'id', None))))
                     included, errors = self.schema.dump(value, many=False)
-                    included_data[(self.schema.Meta.type_, str(value['id']))] = included['data']
-                return {'type': self.schema.Meta.type_, 'id': str(value['id'])}
+                    included_data[(self.schema.Meta.type_,
+                                   str(self.schema.get_attribute(value, 'id', None)))] = included['data']
+                return {'type': self.schema.Meta.type_, 'id': str(self.schema.get_attribute(value, 'id', None))}
         else:
-            return None
+            if self.many:
+                return []
+            else:
+                return None

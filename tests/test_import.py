@@ -73,3 +73,11 @@ def test_circular_relationship(page_schema, comment_schema, author_schema, tag_s
     assert not isinstance(page['comments'][0], tuple)
     assert not isinstance(page['comments'][1], tuple)
     assert not isinstance(page['comments'][2], tuple)
+
+
+def test_load_empty_list(author_schema, tag_schema, author_jsonapi):
+    """Tests that loading an empty list relationship works."""
+    author_jsonapi['data']['relationships'] = {'interests': {'data': []}}
+    author, errors = author_schema(include_schemas=(tag_schema,)).load(author_jsonapi)
+    assert errors == {}
+    assert author.interests == []
