@@ -2,11 +2,11 @@
 API Documentation
 #################
 
-.. automodule:: offline_jsonapi
+.. automodule:: compound_jsonapi
    :members:
 
-.. automodule:: offline_jsonapi.schema
+.. automodule:: compound_jsonapi.schema
    :members:
 
-.. automodule:: offline_jsonapi.fields
+.. automodule:: compound_jsonapi.fields
    :members:

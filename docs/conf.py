@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Offline JSONAPI documentation build configuration file, created by
+# Compound JSONAPI documentation build configuration file, created by
 # sphinx-quickstart on Mon Dec 18 15:00:44 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -47,8 +47,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Offline JSONAPI'
-copyright = '2017, Mark Hall'
+project = 'Compound JSONAPI'
+copyright = '2017-2018, Mark Hall'
 author = 'Mark Hall'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -115,7 +115,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'OfflineJSONAPIdoc'
+htmlhelp_basename = 'CompoundJSONAPIdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -142,7 +142,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'OfflineJSONAPI.tex', 'Offline JSONAPI Documentation',
+    (master_doc, 'CompoundJSONAPI.tex', 'Compound JSONAPI Documentation',
      'Mark Hall', 'manual'),
 ]
 
@@ -152,7 +152,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'offlinejsonapi', 'Offline JSONAPI Documentation',
+    (master_doc, 'Compoundjsonapi', 'Compound JSONAPI Documentation',
      [author], 1)
 ]
 
@@ -163,8 +163,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'OfflineJSONAPI', 'Offline JSONAPI Documentation',
-     author, 'OfflineJSONAPI', 'One line description of project.',
+    (master_doc, 'CompoundJSONAPI', 'Compound JSONAPI Documentation',
+     author, 'CompoundJSONAPI', 'One line description of project.',
      'Miscellaneous'),
 ]
 

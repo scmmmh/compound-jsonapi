@@ -1,14 +1,14 @@
 """
-:mod:`offline_jsonapi`
-======================
+:mod:`compound_jsonapi`
+=======================
 
-The :mod:`offline_jsonapi` provides two main classes:
+The :mod:`compound_jsonapi` provides two main classes:
 
-* The :class:`~offline_jsonapi.schema.Schema` acts as the base-class for all
+* The :class:`~compound_jsonapi.schema.Schema` acts as the base-class for all
   specific schemas that are then used to serialise / deserialise data. Details
   of its public interface can be found at :class:`~marshmallow.Schema`.
-* The :class:`~offline_jsonapi.fields.Relationship` is a custom field to define
-  relationships between :class:`~offline_jsonapi.schema.Schema`.
+* The :class:`~compound_jsonapi.fields.Relationship` is a custom field to define
+  relationships between :class:`~compound_jsonapi.schema.Schema`.
 
 .. moduleauthor:: Mark Hall <mark.hall@work.room3b.eu>
 """

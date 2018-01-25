@@ -1,9 +1,9 @@
 """
-:mod:`offline_jsonapi.fields`
-=============================
+:mod:`compound_jsonapi.fields`
+==============================
 
-Provides the :class:`~offline_jsonapi.fields.Relationship` custom field for
-defining relationships between :class:`~offline_jsonapi.schema.Schema`\ s.
+Provides the :class:`~compound_jsonapi.fields.Relationship` custom field for
+defining relationships between :class:`~compound_jsonapi.schema.Schema`\ s.
 
 .. moduleauthor:: Mark Hall <mark.hall@work.room3b.eu>
 """
@@ -13,15 +13,15 @@ _RECURSIVE_NESTED = 'self'
 
 
 class Relationship(ma.fields.Field):
-    """The :class:`~offline_jsonapi.fields.Relationship` creates a link between
-    two :class:`~offline_jsonapi.schema.Schema`. The linked
-    :class:`~offline_jsonapi.schema.Schema` can either be provided as a class
+    """The :class:`~compound_jsonapi.fields.Relationship` creates a link between
+    two :class:`~compound_jsonapi.schema.Schema`. The linked
+    :class:`~compound_jsonapi.schema.Schema` can either be provided as a class
     or a dotted classname string.
     """
 
     def __init__(self, schema, many=False, **kwargs):
         """
-        :param schema: The :class:`~offline_jsonapi.schema.Schema` that defines
+        :param schema: The :class:`~compound_jsonapi.schema.Schema` that defines
                        how to handle the linked data.
         :param many: By default the relationship is one-to-one. Set this to
                      ``true`` to create a one-to-many relationship
@@ -33,7 +33,7 @@ class Relationship(ma.fields.Field):
 
     @property
     def schema(self):
-        """Property that returns an instantiated :class:`~offline_jsonapi.schema.Schema`
+        """Property that returns an instantiated :class:`~compound_jsonapi.schema.Schema`
         for the relationship."""
         if isinstance(self.__schema, ma.base.SchemaABC):
             pass
@@ -63,11 +63,11 @@ class Relationship(ma.fields.Field):
 
     def _serialize(self, value, attr=None, data=None):
         """Serialises the given ``value``. Will only serialise if the relationship's
-        :class:`~offline_jsonapi.schema.Schema` is included in the list of
-        :class:`~offline_jsonapi.schema.Schema`\ s that have been set in the
+        :class:`~compound_jsonapi.schema.Schema` is included in the list of
+        :class:`~compound_jsonapi.schema.Schema`\ s that have been set in the
         ``include_schemas`` parameter when creating the root
-        :class:`~offline_jsonapi.schema.Schema`. Uses the ``_visited`` property
-        of the :func:`~offline_jsonapi.schema.Schema.schema` to correctly handle
+        :class:`~compound_jsonapi.schema.Schema`. Uses the ``_visited`` property
+        of the :func:`~compound_jsonapi.schema.Schema.schema` to correctly handle
         circular relationship structures."""
         if self.schema.Meta.type_ in self.schema.include_schemas and value is not None:
             visited = getattr(self.schema, '_visited')

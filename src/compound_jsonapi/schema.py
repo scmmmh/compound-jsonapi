@@ -1,8 +1,8 @@
 """
-:mod:`offline_jsonapi.schema.Schema`
-====================================
+:mod:`compound_jsonapi.schema.Schema`
+=====================================
 
-The :class:`~offline_jsonapi.schema.Schema` defines the base-class for
+The :class:`~compound_jsonapi.schema.Schema` defines the base-class for
 custom schemas to use for serialisation / deserialisation.
 
 .. moduleauthor:: Mark Hall <mark.hall@work.room3b.eu>
@@ -20,14 +20,14 @@ class Schema(ma.Schema):
 
     def __init__(self, include_schemas=None, *args, **kwargs):
         """
-        When instantiating a :class:`~offline_jsonapi.schema.Schema`, by default
+        When instantiating a :class:`~compound_jsonapi.schema.Schema`, by default
         only the attributes of the current schema a serialised. If relationships
-        are to be followed, then the :class:`~offline_jsonapi.schema.Schema`\ s
+        are to be followed, then the :class:`~compound_jsonapi.schema.Schema`\ s
         that are to be included must be listed in ``include_schemas``.
 
-        :param include_schemas: The :class:`~offline_jsonapi.schema.Schema`\ s to
+        :param include_schemas: The :class:`~compound_jsonapi.schema.Schema`\ s to
                                 include when serialising / deserialising
-        :type include_schemas: ``list`` of :class:`~offline_jsonapi.schema.Schema`
+        :type include_schemas: ``list`` of :class:`~compound_jsonapi.schema.Schema`
         """
         super(Schema, self).__init__(*args, **kwargs)
         self.include_schemas = dict([(s.Meta.type_, s()) for s in include_schemas]) if include_schemas else {}
