@@ -1,6 +1,6 @@
 """
-:mod:`compound_jsonapi.schema.Schema`
-=====================================
+:mod:`compound_jsonapi.schema`
+==============================
 
 The :class:`~compound_jsonapi.schema.Schema` defines the base-class for
 custom schemas to use for serialisation / deserialisation.
