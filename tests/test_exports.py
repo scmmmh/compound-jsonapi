@@ -28,7 +28,7 @@ def test_basic_export_many(tag_schema, tags_plain):
 def test_export_no_attributes():
     """Test dumping of a schema without attributes."""
     from marshmallow import fields
-    from offline_jsonapi import Schema
+    from compound_jsonapi import Schema
 
     class NoAttributeSchema(Schema):
         id = fields.Int()

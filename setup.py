@@ -10,9 +10,9 @@ requires = [
     'marshmallow>=3.0.0b1'
     ]
 
-setup(name='offline-jsonapi',
+setup(name='compound-jsonapi',
       version='1.0.0a1',
-      description='Offline JSONAPI extension for Marshmallow',
+      description='Compound JSONAPI document extension for Marshmallow',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
         "Programming Language :: Python",
@@ -20,7 +20,7 @@ setup(name='offline-jsonapi',
       author='Mark Hall',
       author_email='mark.hall@work.room3b.eu',
       lincense='MIT',
-      url='https://bitbucket.org/mhall/offline-jsonapi',
+      url='https://bitbucket.org/mhall/compound-jsonapi',
       keywords='',
       packages=find_packages('src'),
       package_dir = {'': 'src'},

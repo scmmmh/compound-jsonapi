@@ -3,7 +3,7 @@ import pytest
 
 from marshmallow import fields, post_load
 
-from offline_jsonapi import Schema, Relationship
+from compound_jsonapi import Schema, Relationship
 
 from faker import Factory
 

@@ -10,9 +10,9 @@ main advantage over `Marshmallow JSONAPI`_ in that it can load and dump full
 circular graph structures.
 
 Sourcecode can be found here:
-  https://bitbucket.org/mhall/offline-jsonapi/
+  https://bitbucket.org/mhall/compound-jsonapi/
 Documentation can be found here:
-  http://offline-jsonapi.readthedocs.io/
+  http://compound-jsonapi.readthedocs.io/
 
   .. _`Marshmallow`: http://marshmallow.readthedocs.io
   .. _`Marshmallow JSONAPI`: http://marshmallow-jsonapi.readthedocs.io
