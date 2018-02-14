@@ -11,7 +11,7 @@ requires = [
     ]
 
 setup(name='compound-jsonapi',
-      version='1.0.0a1',
+      version='1.0.0',
       description='Compound JSONAPI document extension for Marshmallow',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
