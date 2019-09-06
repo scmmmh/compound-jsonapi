@@ -10,7 +10,7 @@ main advantage over `Marshmallow JSONAPI`_ in that it can load and dump full
 circular graph structures.
 
 Sourcecode can be found here:
-  https://bitbucket.org/mhall/compound-jsonapi/
+  https://github.com/scmmmh/compound-jsonapi/
 Documentation can be found here:
   http://compound-jsonapi.readthedocs.io/
 
